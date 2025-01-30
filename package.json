@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "webpack": "^5.97.1",
+    "webpack-dev-server": "^5.2.0"
+  },
+  "dependencies": {
+    "react-table": "^7.8.0"
+  }
+}

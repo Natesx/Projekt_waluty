@@ -1,0 +1,36 @@
+# Użyj oficjalnego obrazu Node.js dla budowy
+FROM node:18 AS build
+
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
+# Ustaw katalog roboczy
+WORKDIR /app
+
+# Skopiuj package.json i package-lock.json
+COPY frontend/package*.json ./
+
+# Zainstaluj zależności, w tym react-select
+RUN npm install react-select --save && npm install
+
+# Skopiuj resztę aplikacji
+COPY frontend/ ./
+
+# ✅ Uruchom testy i zapisz wyniki
+RUN npm test > test_results.txt 2>&1 || true
+
+# Zbuduj aplikację w trybie produkcyjnym
+RUN npm run build
+
+# Użyj serwera nginx do obsługi aplikacji
+FROM nginx:alpine AS production
+
+# Kopiuj statyczne pliki z procesu budowy do serwera nginx
+COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/test_results.txt /usr/share/nginx/html/test_results.txt
+
+# Otwórz port 80
+EXPOSE 80
+
+# Uruchom nginx
+CMD ["nginx", "-g", "daemon off;"]

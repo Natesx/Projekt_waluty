@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.backend
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - ./backend/CurrencyExchange.db:/app/data/CurrencyExchange.db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.frontend
+      args:
+        REACT_APP_API_URL: "http://localhost:8080"
+    ports:
+      - "3000:80"
+    networks:
+      - app-network
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+
+networks:
+  app-network:
+    driver: bridge
